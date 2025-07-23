@@ -142,6 +142,28 @@ async def identify(request: IdentifyRequest):
         primary_id = secondary_contacts[0]['linkedId']
         primary_contact_query = get_all_linked_contacts(primary_id)
         primary_contact = next(c for c in primary_contact_query if c['linkPrecedence'] == 'primary')
+
+    needs_new_contact = False
+    
+    if email and phone:
+        exact_match = any(c['email'] == email and c['phoneNumber'] == phone for c in existing_contacts)
+
+        email_exists = any(c['email'] == email for c in existing_contacts)
+        phone_exists = any(c['phoneNumber'] == phone for c in existing_contacts)
+        
+        if not exact_match and not (email_exists and phone_exists):
+            needs_new_contact = True
+    elif email:
+        email_match = any(c['email'] == email for c in existing_contacts)
+        if not email_match:
+            needs_new_contact = True
+    elif phone:
+        phone_match = any(c['phoneNumber'] == phone for c in existing_contacts)
+        if not phone_match:
+            needs_new_contact = True
+    
+    if needs_new_contact:
+        create_contact(email, phone, primary_id, "secondary")
     
     all_contacts = get_all_linked_contacts(primary_id)
     
