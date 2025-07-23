@@ -181,6 +181,26 @@ async def add_contact(request: AddContactRequest):
     return {"message": "Contact added successfully", "contact_id": contact_id}
 
 
+@app.delete("/contact/{contact_id}")
+async def delete_contact(contact_id: int):
+    """Delete a contact by setting deletedAt timestamp"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT * FROM Contact WHERE id = ? AND deletedAt IS NULL", (contact_id,))
+    contact = cursor.fetchone()
+    
+    if not contact:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Contact not found")
+    
+    now = datetime.now().isoformat()
+    cursor.execute("UPDATE Contact SET deletedAt = ? WHERE id = ?", (now, contact_id))
+    
+    conn.commit()
+    conn.close()
+    
+    return {"message": f"Contact {contact_id} deleted successfully"}
 
 
 if __name__ == "__main__":
