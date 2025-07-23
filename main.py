@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from datetime import datetime
 from db_setup import init_db, get_db_connection
-from db_models import IdentifyRequest, FinalResponse, ContactResponse
+from db_models import IdentifyRequest, FinalResponse, ContactResponse, AddContactRequest
 
 init_db()
 
@@ -167,6 +167,18 @@ async def identify(request: IdentifyRequest):
             secondaryContactIds=secondary_ids
         )
     )
+
+@app.post("/add-contact")
+async def add_contact(request: AddContactRequest):
+    """Add a new contact to the database with all fields"""
+    contact_id = create_contact(
+        email=request.email,
+        phone=request.phoneNumber,
+        linked_id=request.linkedId,
+        precedence=request.linkPrecedence,
+        contact_id=request.id
+    )
+    return {"message": "Contact added successfully", "contact_id": contact_id}
 
 
 

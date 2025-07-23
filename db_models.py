@@ -16,4 +16,10 @@ class ContactResponse(BaseModel):
 class FinalResponse(BaseModel):
     contact: ContactResponse
 
+class AddContactRequest(BaseModel):
+    id: Optional[int] = None
+    email: Optional[str] = None
+    phoneNumber: Optional[str] = None
+    linkedId: Optional[int] = None
+    linkPrecedence: Optional[str] = "primary"
 
