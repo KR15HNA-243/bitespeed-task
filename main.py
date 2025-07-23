@@ -137,6 +137,18 @@ async def identify(request: IdentifyRequest):
         primary_contacts.sort(key=lambda x: x['createdAt'])
         primary_contact = primary_contacts[0]
         primary_id = primary_contact['id']
+
+        for contact in primary_contacts[1:]:
+            update_to_secondary(contact['id'], primary_id)
+            
+            
+        for contact in primary_contacts[1:]:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute("UPDATE Contact SET linkedId = ? WHERE linkedId = ?", (primary_id, contact['id']))
+            conn.commit()
+            conn.close()
+
         
     else:
         primary_id = secondary_contacts[0]['linkedId']
